@@ -1,10 +1,17 @@
 'use strict';
 
-var stacks = {
+// This program simulates the popular "Towers of Hanoi" puzzle. The stacks
+// object represents all the pegs and disks (pieces) used in the puzzle. all
+// of the disks are initially placed on peg 'a' and must be placed in order
+// on either peg 'b' or 'c' to solve the puzzle.
+
+let stacks = {
   a: [4, 3, 2, 1],
   b: [],
   c: []
 };
+// If more pieces are added, maxPiece needs to be changed accordingly
+const maxPiece = 4;
 
 function printStacks () {
   console.log('a: ' + stacks.a);
@@ -12,50 +19,57 @@ function printStacks () {
   console.log('c: ' + stacks.c);
 }
 
-function movePiece (first, second) {
-  var piece = stacks[first].pop();
-  stacks[second].push(piece);
+function movePiece (startStack, endStack) {
+  const piece = stacks[startStack].pop();
+  stacks[endStack].push(piece);
 }
 
-function isLegal (first, second) {
-  var legal = false;
-  var firstVal = 5;
-  var secondVal = 5;
-  if (stacks[first].length > 0) {
-    debugger;
-    firstVal = stacks[first].pop();
-    stacks[first].push(firstVal);
-    debugger;
+function isLegal (startStack, endStack) {
+  //  endStackVal is initially set to maxPiece + 1 to represent an empty peg.
+  //  It's value must be greater than the largest piece in order to allow
+  //  a piece of size maxPiece to be moved onto the peg using the simple
+  //  comparison used in this function.
+  let endStackVal = maxPiece + 1;
+  if (stacks[endStack].length > 0) {
+    //  The .slice(-1)[0] method returns the last value of endStack without
+    //  altering it.
+    endStackVal = stacks[endStack].slice(-1)[0];
   }
-  if (stacks[second].length > 0) {
-    debugger;
-    secondVal = stacks[second].pop();
-    stacks[second].push(secondVal);
-    debugger;
+  //  startStackVal is set to endStackVal prevent someone from trying to move
+  //  a piece from an empty peg to an empty peg. The comparison will fail.
+  let startStackVal = endStackVal;
+  if (stacks[startStack].length > 0) {
+    startStackVal = stacks[startStack].slice(-1)[0];
   }
-  if (firstVal < secondVal) {
-    debugger;
-    legal = true;
+  if (startStackVal < endStackVal) {
+    return true;
   }
-  debugger;
-  return legal;
+  return false;
+}
+
+function isValid (stackName) {
+  if (stackName === 'a' || stackName === 'b' || stackName === 'a') {
+    return true;
+  } else {
+    return false;
+  }
 }
 
 function checkForWin () {
-  var win = false;
-  var aLengthTest = stacks.a.length + 1;
-  var bLengthTest = stacks.b.length + 1;
-  var cLengthTest = stacks.c.length + 1;
-  if (aLengthTest * bLengthTest * cLengthTest === 5) {
-    win = true;
+  if (stacks.b.length === 4 || stacks.c.length === 4) {
+    return true;
   }
-  return win;
+  return false;
 }
 
 function towersOfHanoi (startStack, endStack) {
-  if (isLegal(startStack, endStack)) {
-    movePiece(startStack, endStack);
-    checkForWin();
+  startStack = startStack.trim().toLowerCase();
+  endStack = endStack.trim().toLowerCase();
+  if (isValid(startStack) && isValid(endStack)) {
+    if (isLegal(startStack, endStack)) {
+      movePiece(startStack, endStack);
+      checkForWin();
+    }
   }
 }
 
