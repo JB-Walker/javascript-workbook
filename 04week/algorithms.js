@@ -2,7 +2,7 @@
 
 const assert = require('assert');
 
-function getRandomInt(min, max) {
+function getRandomInt (min, max) {
   min = Math.ceil(min);
   max = Math.floor(max);
   return Math.floor(Math.random() * (max - min)) + min;
@@ -14,16 +14,16 @@ for (let i = 0; i < 1000; i++) {
   arr.push(getRandomInt(0, 1000));
 }
 
-function bubbleSort(arr) {
-  // Your code here
+function bubbleSort (arr) {
+
 }
 
-function mergeSort(arr) {
-  // Your code here
+function mergeSort (arr) {
+
 }
 
-function binarySearch(arr, item) {
-  // Your code here
+function binarySearch (arr, item) {
+
 }
 
 // Tests
