@@ -15,7 +15,7 @@ for (let i = 0; i < 1000; i++) {
 }
 
 function bubbleSort (arr) {
-
+  
 }
 
 function mergeSort (arr) {
@@ -28,14 +28,13 @@ function binarySearch (arr, item) {
 
 // Tests
 
+function comparator (a, b) {
+  if (Number(a) < Number(b)) return -1;
+  if (Number(a) > Number(b)) return 1;
+  return 0;
+}
+
 if (typeof describe === 'function') {
-
-  function comparator(a, b) {
-    if (Number(a) < Number(b)) return -1;
-    if (Number(a) > Number(b)) return 1;
-    return 0;
-  }
-
   describe('#bubbleSort()', () => {
     it('should sort array', () => {
       const sorted = bubbleSort(arr);
@@ -60,9 +59,6 @@ if (typeof describe === 'function') {
       assert.equal(idx, false);
     });
   });
-
 } else {
-
-  console.log('Run the tests!')
-
+  console.log('Run the tests!');
 }
