@@ -1,0 +1,53 @@
+.app {
+  text-align: center;
+  background-color: black;
+}
+
+#title {
+  background-color: black;
+  height: 20px;
+  padding: 30px;
+  color: blue;
+}
+
+.name {
+  height: 35px;
+  width: 150px;
+  color: white;
+  background-color: blue;
+}
+
+.spacer {
+  height: 35px;
+  width: 100px;
+  color: white;
+  background-color: blue;
+}
+
+.gender {
+  height: 35px;
+  width: 50px;
+  color: white;
+  background-color: blue;
+}
+
+.hair {
+  height: 35px;
+  width: 50px;
+  color: white;
+  background-color: blue;
+}
+
+.eyes {
+  height: 35px;
+  width: 50px;
+  color: white;
+  background-color: blue;
+}
+
+.year {
+  height: 35px;
+  width: 50px;
+  color: white;
+  background-color: blue;
+}
