@@ -24,13 +24,14 @@ class StarWars extends React.Component {
     if (this.state.characters) {
       return this.state.characters.map((character, index) => {
         return (
-          <CharacterLine key={index}
-            name={character.name}
-            gender={character.gender}
-            eyes={character.eye_color}
-            hair={character.hair_color}
-            year={character.birth_year}
-          />
+          <tr key={`Row-${index}`}>
+            <td key={`Name-${index}`} data-characterName={character.name} className='name'>{character.name}</td>
+            <td key={`Spacer-${index}`} data-characterName={character.name} className='spacer'>.</td>
+            <td key={`Gender-${index}`} data-characterName={character.name} className='gender'>{character.gender}</td>
+            <td key={`Eyes-${index}`} data-characterName={character.name} className='eyes'>{character.hair_color}</td>
+            <td key={`Hair-${index}`} data-characterName={character.name} className='hair'>{character.eye_color}</td>
+            <td key={`year-${index}`} data-characterName={character.name} className='year'>{character.birth_year}</td>
+          </tr>
         );
       });
     }
@@ -51,19 +52,5 @@ class StarWars extends React.Component {
   }
 }
 
-class CharacterLine extends React.Component {
-  render () {
-    return (
-      <tr>
-        <td data-characterIndex='{index}' className='name'>{this.props.name}</td>
-        <td data-characterIndex='{index}' className='spacer'>.</td>
-        <td data-characterIndex='{index}' className='gender'>{this.props.gender}</td>
-        <td data-characterIndex='{index}' className='eyes'>{this.props.hair}</td>
-        <td data-characterIndex='{index}' className='hair'>{this.props.eyes}</td>
-        <td data-characterIndex='{index}' className='year'>{this.props.year}</td>
-      </tr>
-    );
-  }
-}
 
 ReactDOM.render(<StarWars />, document.getElementById('game'));

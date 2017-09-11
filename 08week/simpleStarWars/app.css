@@ -1,6 +1,7 @@
 .app {
   text-align: center;
   background-color: black;
+  width: 500px;
 }
 
 #title {
@@ -19,9 +20,9 @@
 
 .spacer {
   height: 35px;
-  width: 100px;
-  color: white;
-  background-color: blue;
+  width: 60px;
+  color: black;
+  background-color: black;
 }
 
 .gender {
