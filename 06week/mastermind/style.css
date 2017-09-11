@@ -1,0 +1,70 @@
+body {
+  display: flex;
+  align-items: center;
+  align-content: center;
+}
+
+button {
+  width: 100px;
+  height: 40px;
+  font-size: 12px;
+  text-align: center;
+  border: 2px solid black;
+  color: black;
+}
+
+#buttons {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  align-content: center;
+}
+
+.paletteCell {
+  width: 40px;
+  height: 40px;
+  border: 2px solid black;
+}
+
+.peg{
+  border: 2px solid blue;
+  height: 40px;
+  width: 40px;
+}
+
+*[data-color='0'] {
+  background-color: red;
+}
+
+*[data-color='1'] {
+  background-color: blue;
+}
+
+*[data-color='2'] {
+  background-color: green;
+}
+
+*[data-color='3'] {
+  background-color: white;
+}
+
+*[data-color='4'] {
+  background-color: yellow;
+}
+
+*[data-color='5'] {
+  background-color: purple;
+}
+
+*[data-color='6'] {
+  background-color: orange;
+}
+
+*[data-color='7'] {
+  background-color: black;
+}
+
+*[data-color='8'] {
+  background-color: gray;
+}
