@@ -7,15 +7,12 @@ function Game () {
     this.gameInPlay = true;
     this.board.createGrid();
     this.board.createCheckers();
-    console.clear();
     this.board.viewGrid();
-    console.log(`Play instructions`);
-    console.log(`${this.board.currentPlayer.color}'s turn.`);
   };
 
   this.removeChecker = function (row, col) {
     this.board.grid[row][col] = this.board.constructor.squareCss.open;
-    this.board.checkers.pop;
+    this.board.checkers.pop();
   };
 
   this.addChecker = function (row, col) {
@@ -29,30 +26,87 @@ function Game () {
     } else {
       this.board.currentPlayer = {...this.board.constructor.firstPlayer};
     }
-    console.clear();
+    this.board.currentPlayer.pendingJump = false;
     this.board.viewGrid();
-    console.log(`Play instructions`);
-    console.log(`${this.board.currentPlayer.color}'s turn.`);
   };
 
   this.moveChecker = function (whichPiece, toWhere) {
-    if (parseInt(whichPiece) >= 0 && parseInt(whichPiece) <= 77 && parseInt(toWhere) >= 0 && parseInt(toWhere) <= 77) {
-      const fromRow = parseInt(whichPiece / 10);
-      const fromCol = whichPiece - fromRow * 10;
-      const toRow = parseInt(toWhere / 10);
-      const toCol = toWhere - toRow * 10;
-      debugger
-      if (this.board.grid[fromRow][fromCol] === this.board.currentPlayer.checkerCss && this.board.grid[toRow][toCol] === this.board.constructor.squareCss.open) {
-        switch (true) {
-          // Either player moves a checker into an open square
-          case toRow - fromRow === this.board.currentPlayer.direction && Math.abs(toCol - fromCol) === 1:
-            this.removeChecker(fromRow, fromCol);
-            this.addChecker(toRow, toCol);
-            this.togglePlayer();
-            break;
-        }
-      } else { console.log(`ERROR: Either your checker is not on ${whichPiece} or there is a checker on ${toWhere}. Player ${this.board.currentPlayer.color}, please submit a valid move.`); }
-    } else { console.log(`ERROR: Either ${whichPiece} or ${toWhere} is out of bounds. Player ${this.board.currentPlayer.color}, please submit a valid move.`); }
+    // Error Check -- Return if 'whichPiece' or 'toWhere' is not on the grid
+    if (parseInt(whichPiece) < 0 || parseInt(whichPiece) > 77 ||
+    parseInt(toWhere) < 0 || parseInt(toWhere) > 77) {
+      console.log(`ERROR: Either ${whichPiece} or ${toWhere} is out of bounds.`);
+      return;
+    }
+    // Determine grid coordinates
+    const fromRow = parseInt(whichPiece / 10);
+    const fromCol = whichPiece - fromRow * 10;
+    const toRow = parseInt(toWhere / 10);
+    const toCol = toWhere - toRow * 10;
+    // Error Check -- Return if player does not have a checker at 'whichPiece'
+    // or 'toWhere' not open
+    if (this.board.grid[fromRow][fromCol] !== this.board.currentPlayer.checkerCss ||
+    this.board.grid[toRow][toCol] !== this.board.constructor.squareCss.open) {
+      console.log(`ERROR: Either your checker is not on ${whichPiece} or there is a checker on ${toWhere}.`);
+      return;
+    }
+    // Process single move (no jumps) if move is valid
+    // Verify that: checker moving in the correct direction,
+    // both row & col are changed by 1, and player is not on an
+    // extra move due to an additional available jump
+    if (toRow - fromRow === this.board.currentPlayer.direction &&
+    Math.abs(toCol - fromCol) === 1 &&
+    this.board.currentPlayer.pendingJump === false) {
+      this.removeChecker(fromRow, fromCol);
+      this.addChecker(toRow, toCol);
+      this.togglePlayer();
+      return;
+    }
+    // The only remaining possible move is a jump.
+    // Error Check -- Is it a valid move?
+    const jumpRow = (toRow + fromRow) / 2;
+    const jumpCol = (toCol + fromCol) / 2;
+    if (toRow - fromRow !== this.board.currentPlayer.direction * 2 ||
+    Math.abs(toCol - fromCol) !== 2 ||
+    this.board.grid[jumpRow][jumpCol] !== this.board.currentPlayer.opponentCss) {
+      console.log(`ERROR: Invalid move. No jump possible here.`);
+      return;
+    }
+    // Process the jump
+    this.removeChecker(fromRow, fromCol);
+    this.addChecker(toRow, toCol);
+    this.removeChecker(jumpRow, jumpCol);
+    this.board.viewGrid();
+    // After a jump the checker must be jumped again, if possible.
+    // check to see if there is an available jump.
+    const jumpToLeftRow = toRow + this.board.currentPlayer.direction * 2;
+    const jumpToLeftCol = toCol - 2;
+    const jumpToRightRow = jumpToLeftRow;
+    const jumpToRightCol = toCol + 2;
+    if (this.canJumpAgain(toRow, toCol, jumpToLeftRow, jumpToLeftCol) ||
+    this.canJumpAgain(toRow, toCol, jumpToRightRow, jumpToRightCol)) {
+      console.log(`There is another jump available for that checker. It is still ${this.board.currentPlayer.color}'s turn.`);
+      this.board.currentPlayer.pendingJump = true;
+      return;
+    } else {
+      this.togglePlayer();
+      return;
+    }
+  };
+
+  // This will verify that an additional jump can be made. Returns Booleen.
+  // Will verify that and there is an opposing piece to be jumped and that
+  // the destination square is open.
+  this.canJumpAgain = function (fromRow, fromCol, toRow, toCol) {
+    if (toRow < 0 || toRow > 7 || toCol < 0 || toCol > 7) {
+      return false;
+    }
+    const row = (fromRow + toRow) / 2;
+    const col = (fromCol + toCol) / 2;
+    if (this.board.grid[row][col] === this.board.currentPlayer.opponentCss &&
+    this.board.grid[toRow][toCol] === this.board.constructor.squareCss.open) {
+      return true;
+    }
+    return false;
   };
 }
 
@@ -60,14 +114,16 @@ function Board () {
   this.constructor = {
     name: 'Board',
     firstPlayer: {
-      color: 'Blue',  // Must be synced with firstPlayer.checkerCss's color value
+      color: 'Blue',  // Must be synced with checkerCss's color value
       checkerCss: 'background-color:greenyellow; font-size:40px; padding:0px 12px; color:blue; line-height:40px;',
-      direction: 1
+      direction: 1,
+      opponentCss: 'background-color:greenyellow; font-size:40px; padding:0px 12px; color:red; line-height:40px;'
     },
     secondPlayer: {
-      color: 'Red',  // Must be synced with secondPlayer.checkerCss's color value
+      color: 'Red',  // Must be synced with checkerCss's color value
       checkerCss: 'background-color:greenyellow; font-size:40px; padding:0px 12px; color:red; line-height:40px;',
-      direction: -1
+      direction: -1,
+      opponentCss: 'background-color:greenyellow; font-size:40px; padding:0px 12px; color:blue; line-height:40px;'
     },
     squareCss: {
       open: 'background-color:greenyellow; font-size:40px; padding:0px 12px; color:greenyellow; line-height:40px;',
@@ -79,6 +135,7 @@ function Board () {
   this.grid = [];
   this.checkers = [];
   this.currentPlayer = {...this.constructor.firstPlayer};
+  this.currentPlayer.pendingJump = false;
 
   this.createCheckers = function () {
     for (let i = 0; i < 24; i++) {
@@ -118,12 +175,15 @@ function Board () {
 
   // prints out the board
   this.viewGrid = function () {
+    console.clear();
     console.log('\n');
     console.log('%cC' + '%c0' + '%c1' + '%c2' + '%c3' + '%c4' + '%c5' + '%c6' + '%c7', this.constructor.squareCss.corner, this.constructor.squareCss.label, this.constructor.squareCss.label, this.constructor.squareCss.label, this.constructor.squareCss.label, this.constructor.squareCss.label, this.constructor.squareCss.label, this.constructor.squareCss.label, this.constructor.squareCss.label);
     for (let i = 0; i < 8; i++) {
       console.log(`%c${i}` + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf', this.constructor.squareCss.label, this.grid[i][0], this.grid[i][1], this.grid[i][2], this.grid[i][3], this.grid[i][4], this.grid[i][5], this.grid[i][6], this.grid[i][7]);
     }
     console.log('\n');
+    console.log(`Play instructions`);
+    console.log(`${this.currentPlayer.color}'s turn.`);
   };
 }
 
@@ -133,40 +193,6 @@ game.start();
 function move (whichPiece, toWhere) {
   game.moveChecker(whichPiece, toWhere);
 }
-
-/*
-console.log('%cC' + '%c0' + '%c1' + '%c2' + '%c3' + '%c4' + '%c5' + '%c6' + '%c7', this.constructor.squareCss.corner, this.constructor.squareCss.label, this.constructor.squareCss.label, this.constructor.squareCss.label, this.constructor.squareCss.label, this.constructor.squareCss.label, this.constructor.squareCss.label, this.constructor.squareCss.label, this.constructor.squareCss.label);
-console.log('%c0' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf', this.constructor.squareCss.label, this.grid[0][0], this.grid[0][1], this.grid[0][2], this.grid[0][3], this.grid[0][4], this.grid[0][5], this.grid[0][6], this.grid[0][7]);
-console.log('%c1' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf', this.constructor.squareCss.label, this.grid[1][0], this.grid[1][1], this.grid[1][2], this.grid[1][3], this.grid[1][4], this.grid[1][5], this.grid[1][6], this.grid[1][7]);
-console.log('%c2' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf', this.constructor.squareCss.label, this.grid[2][0], this.grid[2][1], this.grid[2][2], this.grid[2][3], this.grid[2][4], this.grid[2][5], this.grid[2][6], this.grid[2][7]);
-console.log('%c3' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf', this.constructor.squareCss.label, this.grid[3][0], this.grid[3][1], this.grid[3][2], this.grid[3][3], this.grid[3][4], this.grid[3][5], this.grid[3][6], this.grid[3][7]);
-console.log('%c4' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf', this.constructor.squareCss.label, this.grid[4][0], this.grid[4][1], this.grid[4][2], this.grid[4][3], this.grid[4][4], this.grid[4][5], this.grid[4][6], this.grid[4][7]);
-console.log('%c5' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf', this.constructor.squareCss.label, this.grid[5][0], this.grid[5][1], this.grid[5][2], this.grid[5][3], this.grid[5][4], this.grid[5][5], this.grid[5][6], this.grid[5][7]);
-console.log('%c6' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf', this.constructor.squareCss.label, this.grid[6][0], this.grid[6][1], this.grid[6][2], this.grid[6][3], this.grid[6][4], this.grid[6][5], this.grid[6][6], this.grid[6][7]);
-console.log('%c7' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf', this.constructor.squareCss.label, this.grid[7][0], this.grid[7][1], this.grid[7][2], this.grid[7][3], this.grid[7][4], this.grid[7][5], this.grid[7][6], this.grid[7][7]);
-console.log('\n');
-
-  console.log('%cC' + '%c0' + '%c1' + '%c2' + '%c3' + '%c4' + '%c5' + '%c6' + '%c7', corner, label, label, label, label, label, label, label, label);
-  console.log('%c0' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf', label, black, blue, black, blue, black, blue, black, blue);
-  console.log('%c1' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf', label, blue, black, blue, black, blue, black, blue, black);
-  console.log('%c2' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf', label, black, blue, black, blue, black, blue, black, blue);
-  console.log('%c3' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf', label, open, black, open, black, open, black, open, black);
-  console.log('%c4' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf', label, black, open, black, open, black, open, black, open);
-  console.log('%c5' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf', label, red, black, red, black, red, black, red, black);
-  console.log('%c6' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf', label, black, red, black, red, black, red, black, red);
-  console.log('%c7' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf', label, red, black, red, black, red, black, red, black);
-
-const grid = [
-  [black, blue, black, blue, black, blue, black, blue],
-  [blue, black, blue, black, blue, black, blue, black],
-  [black, blue, black, blue, black, blue, black, blue],
-  [open, black, open, black, open, black, open, black],
-  [black, open, black, open, black, open, black, open],
-  [red, black, red, black, red, black, red, black],
-  [black, red, black, red, black, red, black, red],
-  [red, black, red, black, red, black, red, black]
-];
-*/
 
 // Tests
 /*******
