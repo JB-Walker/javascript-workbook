@@ -6,10 +6,11 @@ function Game () {
   this.start = function () {
     this.gameInPlay = true;
     this.board.createGrid();
+    this.board.createCheckers();
     console.clear();
     this.board.viewGrid();
     console.log(`Play instructions`);
-    console.log(`${this.board.currentPlayerColor}'s turn.`);
+    console.log(`${this.board.currentPlayer.color}'s turn.`);
   };
 
   this.removeChecker = function (row, col) {
@@ -18,22 +19,22 @@ function Game () {
   };
 
   this.addChecker = function (row, col) {
-    this.board.grid[row][col] = this.board.currentPlayerChecker;
+    this.board.grid[row][col] = this.board.currentPlayer.checkerCSS;
     this.board.checkers.push('placeHolder');
   };
 
   this.togglePlayer = function () {
-    if (this.board.currentPlayerColor === this.board.constructor.firstPlayerColor) {
-      this.board.currentPlayerColor = this.board.constructor.secondPlayerColor;
-      this.board.currentPlayerChecker = this.board.constructor.secondPlayerChecker;
+    if (this.board.currentPlayer.color === this.board.constructor.firstPlayer.color) {
+      this.board.currentPlayer.color = this.board.constructor.secondPlayer.color;
+      this.board.currentPlayer.checkerCSS = this.board.constructor.secondPlayer.checkerCSS;
     } else {
-      this.board.currentPlayerColor = this.board.constructor.firstPlayerColor;
-      this.board.currentPlayerChecker = this.board.constructor.firstPlayerChecker;
+      this.board.currentPlayer.color = this.board.constructor.firstPlayer.color;
+      this.board.currentPlayer.checkerCSS = this.board.constructor.firstPlayer.checkerCSS;
     }
     console.clear();
     this.board.viewGrid();
     console.log(`Play instructions`);
-    console.log(`${this.board.currentPlayerColor}'s turn.`);
+    console.log(`${this.board.currentPlayer.color}'s turn.`);
   };
 
   this.moveChecker = function (whichPiece, toWhere) {
@@ -42,26 +43,24 @@ function Game () {
       const fromCol = whichPiece - fromRow * 10;
       const toRow = parseInt(toWhere / 10);
       const toCol = toWhere - toRow * 10;
-      if (this.board.grid[fromRow][fromCol] === this.board.currentPlayerChecker && this.board.grid[toRow][toCol] === this.board.constructor.openSquare) {
+      if (this.board.grid[fromRow][fromCol] === this.board.currentPlayer.checkerCSS && this.board.grid[toRow][toCol] === this.board.constructor.openSquare) {
         switch (true) {
           // FirstPlayer is moving a checker in a downwards direction into an open square
-          case this.board.currentPlayerColor === this.board.constructor.firstPlayerColor && toRow - fromRow === 1 && Math.abs(toCol - fromCol) === 1:
+          case this.board.currentPlayer.color === this.board.constructor.firstPlayer.color && toRow - fromRow === 1 && Math.abs(toCol - fromCol) === 1:
             this.removeChecker(fromRow, fromCol);
             this.addChecker(toRow, toCol);
             this.togglePlayer();
             break;
           // SecondPlayer is moving a checker in a upwards direction into an open square
-          case this.board.currentPlayerColor === this.board.constructor.secondPlayerColor && fromRow - toRow === 1 && Math.abs(toCol - fromCol) === 1:
+          case this.board.currentPlayer.color === this.board.constructor.secondPlayer.color && fromRow - toRow === 1 && Math.abs(toCol - fromCol) === 1:
             this.removeChecker(fromRow, fromCol);
             this.addChecker(toRow, toCol);
             this.togglePlayer();
             break;
-          //
-          case
 
         }
-      } else { console.log(`ERROR: Either your checker is not on ${whichPiece} or there is a checker on ${toWhere}. Player ${this.board.currentPlayerColor}, please submit a valid move.`); }
-    } else { console.log(`ERROR: Either ${whichPiece} or ${toWhere} is out of bounds. Player ${this.board.currentPlayerColor}, please submit a valid move.`); }
+      } else { console.log(`ERROR: Either your checker is not on ${whichPiece} or there is a checker on ${toWhere}. Player ${this.board.currentPlayer.color}, please submit a valid move.`); }
+    } else { console.log(`ERROR: Either ${whichPiece} or ${toWhere} is out of bounds. Player ${this.board.currentPlayer.color}, please submit a valid move.`); }
   };
 }
 
@@ -78,21 +77,20 @@ function Board () {
       checkerCSS: 'background-color:greenyellow; font-size:40px; padding:0px 12px; color:red; line-height:40px;',
       direction: -1
     },
-    firstPlayerColor: 'Blue',  // Must be synced with firstPlayerChecker's css color
-    firstPlayerChecker: 'background-color:greenyellow; font-size:40px; padding:0px 12px; color:blue; line-height:40px;',
-    secondPlayerColor: 'Red',  // Must be synced with secondPlayerChecker's css color
-    secondPlayerChecker: 'background-color:greenyellow; font-size:40px; padding:0px 12px; color:red; line-height:40px;',
     openSquare: 'background-color:greenyellow; font-size:40px; padding:0px 12px; color:greenyellow; line-height:40px;',
     blackSquare: 'background-color:black; font-size:40px; padding:0px 12px; color:black; line-height:40px;',
     labelSquare: 'background-color:white; font-size:40px; padding:0px 12px; color:greenyellow; line-height:40px;',
     cornerSquare: 'background-color:white; font-size:40px; padding:0px 12px; color:white; line-height:40px;'
   };
-  this.currentPlayerColor = this.constructor.firstPlayerColor;
-  this.currentPlayerChecker = this.constructor.firstPlayerChecker;
   this.grid = [];
-
+  this.checkers = [];
   this.currentPlayer = {...this.constructor.firstPlayer};
 
+  this.createCheckers = function () {
+    for (let i = 0; i < 24; i++) {
+      this.checkers.push('placeHolder');
+    }
+  };
 
   // The createGrid function creates an 8x8 Checker Board array,
   // filled with alternating black and white squares.
@@ -109,13 +107,13 @@ function Board () {
         } else {
           switch (true) {
             case row <= 2:
-              this.grid[row].push(this.constructor.firstPlayerChecker);
+              this.grid[row].push(this.constructor.firstPlayer.checkerCSS);
               break;
             case row <= 4:
               this.grid[row].push(this.constructor.openSquare);
               break;
             default:
-              this.grid[row].push(this.constructor.secondPlayerChecker);
+              this.grid[row].push(this.constructor.secondPlayer.checkerCSS);
           }
           flag = !flag;
         }
