@@ -226,7 +226,7 @@ function Board () {
 
   // In the console.log() method, the special symbol '%c' indicates that CSS
   // is used for this entity (string/variable/symbol). Limitations of the
-  // method make it necessary to write out each entity.
+  // method make it necessary to write out each entity & use a for loop.
   this.viewGrid = function () {
     console.clear();
     console.log('\n');
