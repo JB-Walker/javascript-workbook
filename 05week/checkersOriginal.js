@@ -12,9 +12,8 @@
 // Javascript programs may not seek user input from the console, so a work
 // around has been used. Players submit their inputs in the form of "move(x,y)"
 // which in actuality is a command to execute the move function with x and y
-// arguments. In effect, this console game is 'event-driven.
-
-
+// arguments. The game design waits the players to call its move function,
+// much the same as an event-driven game awaits user-generated events.
 
 function Game () {
   this.board = new Board();
@@ -236,11 +235,16 @@ function Board () {
       console.log(`%c${i}` + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf', this.constructor.squareCss.label, this.grid[i][0], this.grid[i][1], this.grid[i][2], this.grid[i][3], this.grid[i][4], this.grid[i][5], this.grid[i][6], this.grid[i][7]);
     }
     console.log('\n');
-    console.log(`Play instructions`);
-    console.log(`${this.currentPlayer.color}'s turn.`);
+    console.log(`%cInstructions: ` + `%center checker movements by typing: move(xy,ab)`, `font-size:150%; font-weight:bold;`, `font-size:125%;`);
+    console.log(`%cWhere 'xy' is the checker's current row-col position and 'ab' is its destination.`, `font-size:125%;`);
+    console.log(`%cExample: move(21,32)  Subsequent moves are more easily entered using the up arrow key & editing.`, `font-size:125%;`);
+    console.log('\n');
+    console.log(`%c${this.currentPlayer.color}'s turn.`, `font-size:125%;`);
   };
 }
 
+// This function simply acts as a pointer. It is used to reduce the amount of
+// typing that players must make each turn and helps to encapsulate the code.
 function move (whichPiece, toWhere) {
   game.moveChecker(whichPiece, toWhere);
 }
@@ -249,7 +253,7 @@ const game = new Game();
 game.start();
 
 // Tests
-/*****
+/***** CAN NOT BE USED (with ease) DUE TO PRESENCE OF ES6 STATEMENTS
 const assert = require('assert');
 const readline = require('readline');
 const rl = readline.createInterface({
