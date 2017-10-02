@@ -22,6 +22,7 @@ function Game () {
     this.gameInPlay = true;
     this.board.createGrid();
     this.board.viewGrid();
+    getPrompt();
   };
 
   // This removes a checker from the board. It is used a player makes a move
@@ -235,7 +236,7 @@ function Board () {
       console.log(`%c${i}` + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf' + '%c\u25cf', this.constructor.squareCss.label, this.grid[i][0], this.grid[i][1], this.grid[i][2], this.grid[i][3], this.grid[i][4], this.grid[i][5], this.grid[i][6], this.grid[i][7]);
     }
     console.log('\n');
-    console.log(`%cInstructions: ` + `%center checker movements by typing: move(xy,ab)`, `font-size:150%; font-weight:bold;`, `font-size:125%;`);
+    console.log(`%cCONSOLE CHECKERS ` + `%cInstructions: ` + `%center checker movements by typing: move(xy,ab)`, `font-size:150%; font-weight:bold; color:blue`, `font-size:150%; font-weight:bold;`, `font-size:125%;`);
     console.log(`%cWhere 'xy' is the checker's current row-col position and 'ab' is its destination.`, `font-size:125%;`);
     console.log(`%cExample: move(21,32)  Subsequent moves are more easily entered using the up arrow key & editing.`, `font-size:125%;`);
     console.log('\n');
@@ -249,17 +250,16 @@ function move (whichPiece, toWhere) {
   game.moveChecker(whichPiece, toWhere);
 }
 
-const game = new Game();
-game.start();
-
 // Tests
-/***** CAN NOT BE USED (with ease) DUE TO PRESENCE OF ES6 STATEMENTS
 const assert = require('assert');
 const readline = require('readline');
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout
 });
+
+const game = new Game();
+game.start();
 
 function getPrompt () {
   game.board.viewGrid();
@@ -301,4 +301,3 @@ if (typeof describe === 'function') {
 } else {
   getPrompt();
 }
-*****/
